@@ -1,8 +1,12 @@
+<div align="center">
+
 # NICE Downloader API
 
 Universal media downloader API supporting 17+ platforms.
 
-![NICE Downloader Screenshot](https://i.ibb.co/Xkdr0bWH/screenshot.png)
+<img src="https://i.ibb.co/Xkdr0bWH/screenshot.png" alt="NICE Downloader" width="100%">
+
+</div>
 
 ## Supported Platforms
 
