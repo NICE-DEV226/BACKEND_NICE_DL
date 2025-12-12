@@ -3,9 +3,12 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-// Use in-memory storage for serverless (Vercel), SQLite for local dev
+// Use Vercel KV for serverless, SQLite for local dev
 const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
-const { initDb } = isServerless ? require("./models/storage") : require("./models/database");
+const hasKV = process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN;
+const { initDb } = isServerless 
+  ? (hasKV ? require("./models/kvStorage") : require("./models/storage"))
+  : require("./models/database");
 
 const app = express();
 
