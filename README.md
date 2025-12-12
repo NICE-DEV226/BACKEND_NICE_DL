@@ -4,7 +4,8 @@
 
 Universal media downloader API supporting 17+ platforms.
 
-<img src="https://i.ibb.co/Xkdr0bWH" alt="NICE Downloader" width="50%">
+<img src="https://i.ibb.co/Xkdr0bWH/screenshot.png" alt="NICE Downloader" style="max-width: 400px; width: 100%;">
+
 
 
 ## Supported Platforms
