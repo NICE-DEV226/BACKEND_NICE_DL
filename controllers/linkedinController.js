@@ -10,6 +10,13 @@ async function handleLinkedinDownload(req, res) {
     }
 
     const data = await fetchLinkedinData(url);
+    console.log("💼 LinkedIn response:", JSON.stringify(data, null, 2));
+    
+    // Add a title if not present
+    if (!data.title) {
+      data.title = 'LinkedIn Video';
+    }
+    
     res.json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

@@ -11,6 +11,7 @@ async function handleTwitterDownload(req, res) {
 
   try {
     const data = await downloadTwmateData(url);
+    console.log("🐦 Twitter response:", JSON.stringify(data, null, 2));
     res.json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

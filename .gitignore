@@ -5,3 +5,8 @@ public/
 swagger.js
 .vercel
 ignore/
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.example

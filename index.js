@@ -1,6 +1,11 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+// Use in-memory storage for serverless (Vercel), SQLite for local dev
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const { initDb } = isServerless ? require("./models/storage") : require("./models/database");
 
 const app = express();
 
@@ -26,6 +31,8 @@ app.use("/api/tiktok", require("./routes/tiktok"));
 app.use("/api/tumblr", require("./routes/tumblr"));
 app.use("/api/twitter", require("./routes/twitter"));
 app.use("/api/youtube", require("./routes/youtube"));
+app.use("/api/admin", require("./routes/admin"));
+app.use("/api/proxy", require("./routes/proxy"));
 
 const endpoints = [
   "/api/bluesky",
@@ -50,8 +57,7 @@ const endpoints = [
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    author: "Milan Bhandari",
-    contact: "https://www.milanb.com.np/",
+    author: "NICE-DEV",
     message: "Universal Downloader API is running",
     endpoints,
   });
@@ -73,6 +79,16 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+// Initialize database then start server
+initDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Database initialized`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to initialize database:", err);
+    process.exit(1);
+  });
