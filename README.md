@@ -1,134 +1,153 @@
-# universalDownloader
+# NICE Downloader API
 
-[![GitHub stars](https://img.shields.io/github/stars/milancodess/universalDownloader?style=social)](https://github.com/milancodess/universalDownloader/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/milancodess/universalDownloader?style=social)](https://github.com/milancodess/universalDownloader/network/members)
+Universal media downloader API supporting 17+ platforms.
 
-[![Join our Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/qG9cCvEtA3)
+![NICE Downloader Screenshot](https://i.ibb.co/Xkdr0bWH/screenshot.png)
 
-A universal media downloader API built with Node.js and Express.  
-Download media from LinkedIn,Threads, Reddit, Facebook, Instagram, TikTok, YouTube, Pinterest, Twitter, Douyin and more — all in one easy-to-use API.
+## Supported Platforms
 
----
+| Platform | Status | Endpoint |
+|----------|--------|----------|
+| TikTok | ✅ | `/api/tiktok/download` |
+| YouTube | ✅ | `/api/youtube/download` |
+| Instagram | ✅ | `/api/meta/download` |
+| Facebook | ✅ | `/api/meta/download` |
+| Pinterest | ✅ | `/api/pinterest/download` |
+| LinkedIn | ✅ | `/api/linkedin/download` |
+| Reddit | ✅ | `/api/reddit/download` |
+| Threads | ✅ | `/api/threads/download` |
+| Snapchat | ✅ | `/api/snapchat/download` |
+| SoundCloud | ✅ | `/api/soundcloud/download` |
+| Dailymotion | ✅ | `/api/dailymotion/download` |
+| Tumblr | ✅ | `/api/tumblr/download` |
+| Bluesky | ✅ | `/api/bluesky/download` |
+| Douyin | ✅ | `/api/douyin/download` |
+| Kuaishou | ✅ | `/api/kuaishou/download` |
+| CapCut | ✅ | `/api/capcut/download` |
+| Spotify | ⚠️ | `/api/spotify/download` |
+| Twitter/X | ⚠️ | `/api/twitter/download` |
 
-## Star History
+> ⚠️ = Temporarily unavailable (external service issues)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=milancodess/universalDownloader&type=Date)](https://www.star-history.com/#milancodess/universalDownloader&Date)
-
----
-
-## Features
-
-- Download media from popular platforms:
-  - Bluesky
-  - CapCut
-  - Dailymotion
-  - Douyin
-  - Facebook & Instagram ( meta )
-  - Kuaishou
-  - LinkedIn
-  - Pinterest
-  - Reddit
-  - Snapchat
-  - Soundcloud
-  - Spotify
-  - Threads
-  - TikTok
-  - Tumblr
-  - Twitter ( X )
-  - YouTube
-- Easy REST API endpoints
-- Built with JavaScript
-- **~~Swagger API documentation included~~**
-- Modular architecture: services, controllers, routes
-
----
-
-## Installation
+## Quick Start
 
 ```bash
-git clone https://github.com/milancodess/universalDownloader.git
-cd universalDownloader
+# Install dependencies
 npm install
-```
 
----
+# Create .env file
+cp .env.example .env
 
-## Usage
+# Start development server
+npm run dev
 
-1. Start the server:
-
-```bash
+# Start production server
 npm start
 ```
 
-2. Access API at:
-   [http://localhost:3000/](http://localhost:3000/)
+## API Usage
 
-3. Example API request to download Instagram media:
+### Download Media
 
 ```
-GET http://localhost:3000/api/meta/download?url=https://www.instagram.com/p/DLHQfPiyucu/
+GET /api/{platform}/download?url={media_url}
 ```
 
-Response:
+**Example:**
+```bash
+curl "http://localhost:3000/api/tiktok/download?url=https://www.tiktok.com/@user/video/123"
+```
 
+**Response:**
 ```json
 {
   "success": true,
   "data": {
-    // media download info here
+    "title": "Video Title",
+    "thumbnail": "https://...",
+    "downloads": [
+      { "url": "https://...", "quality": "HD" }
+    ]
   }
 }
 ```
 
----
 
-## API Endpoints
 
-| Endpoint                    | Description                       | Method |
-| --------------------------- | --------------------------------- | ------ |
-| `/api/bluesky/download`     | Download Bluesky media            | GET    |
-| `/api/capcut/download`      | Download CapCut media             | GET    |
-| `/api/dailymotion/download` | Download Dailymotion media        | GET    |
-| `/api/douyin/download`      | Download Douyin media             | GET    |
-| `/api/kuaishou/download`    | Download Kuaishou media           | GET    |
-| `/api/linkedin/download`    | Download LinkedIn media           | GET    |
-| `/api/meta/download`        | Download Facebook/Instagram media | GET    |
-| `/api/pinterest/download`   | Download Pinterest media          | GET    |
-| `/api/reddit/download`      | Download Reddit media             | GET    |
-| `/api/snapchat/download`    | Download Snapchat media           | GET    |
-| `/api/soundcloud/download`  | Download Soundcloud media         | GET    |
-| `/api/spotify/download`     | Download Spotify media            | GET    |
-| `/api/threads/download`     | Download Threads media            | GET    |
-| `/api/tiktok/download`      | Download TikTok media             | GET    |
-| `/api/tumblr/download`      | Download Tumblr media             | GET    |
-| `/api/twitter/download`     | Download Twitter media            | GET    |
-| `/api/youtube/download`     | Download YouTube media            | GET    |
+### Endpoints
 
-**~~See the full interactive API docs with Swagger at `/api-docs`.~~**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/stats` | Get platform statistics |
+| GET | `/api/admin/reports` | Get user reports |
+| PATCH | `/api/admin/reports/:id` | Update report status |
+| DELETE | `/api/admin/reports/:id` | Delete report |
+| GET | `/api/admin/ratings` | Get user ratings |
+| GET | `/api/admin/announcements` | Get announcements |
+| POST | `/api/admin/announcements` | Create announcement |
+| PATCH | `/api/admin/announcements/:id` | Toggle announcement |
+| DELETE | `/api/admin/announcements/:id` | Delete announcement |
+| GET | `/api/admin/polls` | Get polls |
+| POST | `/api/admin/polls` | Create poll |
+| GET | `/api/admin/polls/:id/responses` | Get poll responses |
+| DELETE | `/api/admin/polls/:id` | Delete poll |
+| GET | `/api/admin/platforms` | Get disabled platforms |
+| POST | `/api/admin/platforms/disable` | Disable platform |
+| POST | `/api/admin/platforms/enable` | Enable platform |
 
----
+### Public Endpoints (No Auth)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/admin/report` | Submit error report |
+| POST | `/api/admin/rating` | Submit rating |
+| POST | `/api/admin/track` | Track download |
+| GET | `/api/admin/public/announcements` | Get active announcements |
+| GET | `/api/admin/public/poll` | Get active poll |
+| POST | `/api/admin/public/poll/:id/respond` | Submit poll response |
+| GET | `/api/admin/public/disabled-platforms` | Get disabled platforms |
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ADMIN_KEY` | Admin authentication key | `nicedl-admin-2024` |
+| `PORT` | Server port | `3000` |
+
+## Deployment
+
+### Vercel
+
+1. Import this repository
+2. Set `ADMIN_KEY` in environment variables
+3. Deploy
+
+> Note: On Vercel, data is stored in-memory and resets on cold starts.
+> For persistence, integrate with Vercel KV, PlanetScale, or MongoDB Atlas.
+
+### VPS / Server
+
+```bash
+# With PM2
+pm2 start index.js --name "nicedl-api"
+
+# Or directly
+node index.js
+```
 
 ## Project Structure
 
 ```
-.
-├── controllers/       # API route handlers
-├── routes/            # Express route definitions
-├── services/          # Business logic & downloader functions
-├── server.js          # Express app entry point
-└── package.json
+├── controllers/     # Request handlers
+├── services/        # Platform-specific logic
+├── routes/          # API routes
+├── models/          # Data storage
+│   ├── database.js  # SQLite (local dev)
+│   └── storage.js   # In-memory (serverless)
+├── index.js         # Entry point
+└── vercel.json      # Vercel config
 ```
 
----
+## License
 
-## Contributing
-
-Feel free to open issues or submit pull requests!
-If you want to add support for other platforms or improve error handling, you're welcome!
-
----
-
-## Author
-
-Milan Bhandari — [GitHub](https://github.com/milancodess)
+MIT © NICE-DEV
