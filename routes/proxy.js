@@ -21,13 +21,41 @@ router.get('/download', async (req, res) => {
       },
     });
 
-    // Get content type from response or default to video/mp4
-    const contentType = response.headers['content-type'] || 'video/mp4';
+    // Get content type from response or default to application/octet-stream
+    const contentType = response.headers['content-type'] || 'application/octet-stream';
     const contentLength = response.headers['content-length'];
+
+    // Map content types to extensions for automatic correction
+    const typeToExt = {
+      'video/mp4': 'mp4',
+      'video/webm': 'webm',
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+      'audio/mpeg': 'mp3',
+      'audio/mp3': 'mp3',
+      'audio/ogg': 'ogg',
+      'audio/wav': 'wav'
+    };
+
+    let finalFilename = filename || 'download';
+    // If filename has no extension or wrong extension, fix it based on contentType
+    const currentExt = finalFilename.split('.').pop()?.toLowerCase();
+    const expectedExt = typeToExt[contentType.split(';')[0].toLowerCase()];
+
+    if (expectedExt && currentExt !== expectedExt) {
+      if (currentExt === 'mp4' && contentType.startsWith('image/')) {
+        // Specifically fix the case reported by the user: image saved as mp4
+        finalFilename = finalFilename.replace(/\.mp4$/i, `.${expectedExt}`);
+      } else if (!finalFilename.includes('.')) {
+        finalFilename += `.${expectedExt}`;
+      }
+    }
 
     // Set headers for download
     res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename || 'download.mp4'}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(finalFilename)}"`);
     if (contentLength) {
       res.setHeader('Content-Length', contentLength);
     }

@@ -1,68 +1,97 @@
 const axios = require("axios");
-const cheerio = require("cheerio");
 
+/**
+ * Downloads TikTok video/audio data using tikwm.com API
+ * @param {string} videoUrl - The TikTok video URL
+ * @returns {Promise<object>} - Video data with download links
+ */
 async function fetchTikTokData(videoUrl) {
-  const endpoint = "https://tikdownloader.io/api/ajaxSearch";
+  const endpoint = "https://www.tikwm.com/api/";
 
   try {
-    const res = await axios.post(
-      endpoint,
-      new URLSearchParams({ q: videoUrl, lang: "en" }),
-      {
-        headers: {
-          accept: "*/*",
-          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "x-requested-with": "XMLHttpRequest",
-          Referer: "https://tikdownloader.io/en",
-        },
-      }
-    );
-
-    const html = res.data.data;
-    const $ = cheerio.load(html);
-
-    const title = $(".thumbnail h3").text().trim() || null;
-    const thumbnail = $(".thumbnail img").attr("src") || null;
-
-    const downloads = [];
-
-    // ===========================
-    // VIDEO / AUDIO DOWNLOADS
-    // ===========================
-    $(".dl-action a").each((i, el) => {
-      const text = $(el).text().trim();
-      const url = $(el).attr("href");
-
-      // ❗ DO NOT push empty or "#" URLs
-      if (!url || url === "#") return;
-
-      downloads.push({ text, url });
+    const res = await axios.get(endpoint, {
+      params: { url: videoUrl },
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "application/json",
+      },
+      timeout: 20000,
     });
 
-    // ===========================
-    // PHOTO MODE DOWNLOADS
-    // ===========================
-    const photos = $(".photo-list .download-box li");
+    const response = res.data;
 
-    if (photos.length > 0) {
-      photos.each((i, el) => {
-        const text = $(el).find("a").text().trim();
-        const url = $(el).find("a").attr("href");
+    if (response.code !== 0 || !response.data) {
+      throw new Error(
+        `TikTok API error: ${response.msg || "Failed to fetch video data"}`
+      );
+    }
 
-        if (!url || url === "#") return;
+    const data = response.data;
 
-        downloads.push({ text, url });
+    // Build download links
+    const downloads = [];
+
+    // Video without watermark (HD)
+    if (data.hdplay) {
+      downloads.push({
+        text: "Download HD (No Watermark)",
+        url: data.hdplay,
       });
     }
 
+    // Video without watermark (Standard)
+    if (data.play) {
+      downloads.push({
+        text: "Download MP4 (No Watermark)",
+        url: data.play,
+      });
+    }
+
+    // Video with watermark
+    if (data.wmplay) {
+      downloads.push({
+        text: "Download (With Watermark)",
+        url: data.wmplay,
+      });
+    }
+
+    // Audio/Music
+    if (data.music) {
+      downloads.push({
+        text: "Download Audio (MP3)",
+        url: data.music,
+      });
+    }
+
+    // Handle photo slideshows
+    if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+      data.images.forEach((img, index) => {
+        downloads.push({
+          text: `Photo ${index + 1}`,
+          url: img,
+        });
+      });
+    }
+
+    if (downloads.length === 0) {
+      throw new Error("No download links found for this TikTok video.");
+    }
+
     return {
-      status: res.data.status,
-      title,
-      thumbnail,
+      status: "ok",
+      title: data.title || null,
+      thumbnail: data.cover || data.origin_cover || null,
+      author: data.author?.nickname || null,
+      authorUsername: data.author?.unique_id || null,
+      duration: data.duration || null,
       downloads,
     };
   } catch (error) {
-    throw new Error(`TikDownloader request failed: ${error.message}`);
+    if (error.response) {
+      throw new Error(`TikTok API HTTP failed: ${error.response.status}`);
+    }
+    throw new Error(`TikTok download failed: ${error.message}`);
   }
 }
 

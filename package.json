@@ -8,6 +8,7 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
     "@vercel/kv": "^3.0.0",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",

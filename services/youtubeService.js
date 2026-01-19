@@ -1,39 +1,50 @@
-const axios = require("axios");
+const ytdl = require("@distube/ytdl-core");
 
+/**
+ * Fetches YouTube video metadata and download formats using @distube/ytdl-core
+ * @param {string} url - The YouTube video URL
+ * @returns {Promise<object>} - Video data with formats
+ */
 async function fetchYouTubeData(url) {
   try {
-    const res = await axios.get(
-      "https://api.vidfly.ai/api/media/youtube/download",
-      {
-        params: { url },
-        headers: {
-          accept: "*/*",
-          "content-type": "application/json",
-          "x-app-name": "vidfly-web",
-          "x-app-version": "1.0.0",
-          Referer: "https://vidfly.ai/",
-        },
-      }
-    );
-
-    const data = res.data?.data;
-    if (!data || !data.items || !data.title) {
-      throw new Error("Invalid or empty response from YouTube downloader API");
+    if (!ytdl.validateURL(url)) {
+      throw new Error("Invalid YouTube URL");
     }
 
+    const info = await ytdl.getInfo(url);
+
+    // Extract basic info
+    const { videoDetails, formats } = info;
+
+    // Process formats to match the expected interface
+    // filter to get formats with both video and audio, or just audio, or just video
+    const processedFormats = formats
+      .filter(f => f.url) // ensure URL exists
+      .map(f => {
+        let type = "video";
+        if (!f.hasVideo && f.hasAudio) type = "audio";
+        else if (f.hasVideo && !f.hasAudio) type = "video_only";
+
+        return {
+          type: type,
+          quality: f.qualityLabel || (f.audioBitrate ? `${f.audioBitrate}kbps` : "unknown"),
+          extension: f.container || "unknown",
+          url: f.url,
+          mimeType: f.mimeType,
+          size: f.contentLength ? parseInt(f.contentLength) : null
+        };
+      });
+
     return {
-      title: data.title,
-      thumbnail: data.cover,
-      duration: data.duration,
-      formats: data.items.map((item) => ({
-        type: item.type,
-        quality: item.label || "unknown",
-        extension: item.ext || item.extension || "unknown",
-        url: item.url,
-      })),
+      title: videoDetails.title,
+      thumbnail: videoDetails.thumbnails[videoDetails.thumbnails.length - 1]?.url || null,
+      duration: parseInt(videoDetails.lengthSeconds),
+      author: videoDetails.author.name,
+      viewCount: videoDetails.viewCount,
+      formats: processedFormats,
     };
   } catch (err) {
-    throw new Error(`YouTube downloader request failed: ${err.message}`);
+    throw new Error(`YouTube extraction failed: ${err.message}`);
   }
 }
 
